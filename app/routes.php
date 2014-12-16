@@ -17,7 +17,20 @@ Route::get('quiz', function(){
 	$question = Question::random()->take(1)->first();
 	$options = [$question->answer, $question->option1, $question->option2, $question->option3 ];
 	shuffle($options);
+
 	return View::make('quiz.index', compact('question', 'options'));
+});
+
+Route::post('checkanswer', function(){
+	$qid = Input::get('qid');
+	$q = Question::find($qid);
+	if (Input::get('answer') == $q->answer){
+		$correct = true;
+	} else {
+		$correct = false;
+	}
+	$payload = [ 'qid'=> $qid, 'correct' => $correct, 'answer' => $q->answer ];
+	return Response::json($payload);
 });
 
 Route::get('importer', function(){
