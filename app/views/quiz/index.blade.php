@@ -1,4 +1,5 @@
 @extends('layouts.default')
+@section('page_title', 'Quiz')
 @section('content')
 
 <div class="container">
@@ -17,7 +18,7 @@
         </div>
 @endforeach
 
-<div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+<div class="">
 	<div class="info hide">
 		
 	</div>	
@@ -41,7 +42,8 @@
 					$('.info').html('<input class="btn btn-primary" id="next" type="button" value="Correct! Next question">');
 
 				} else {
-					$('.info').html('<p>Incorrect answer is ' + data.answer + '</p>');
+					$('.info').html('<p>Incorrect! ' + data.answer + '</p> <input class="btn btn-primary" id="next" type="button" value="Next question">');
+					$('.question').attr('disabled', true);
 				}
 
 				$('#next').click(function(){
