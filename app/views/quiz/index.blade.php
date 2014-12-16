@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="container">
-	Score: {{ Session::get('score') }}
+	Correct Answers: {{ Session::get('score') }} Incorrect Answers: {{ Session::get('mistakes') }}
 
 
 <h4>{{ $question->question }}</h4>

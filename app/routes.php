@@ -32,6 +32,12 @@ Route::post('checkanswer', function(){
 		Session::set('score', 0);
 		$score = 0;
 	}
+	if ( Session::has('mistakes') ){
+		$mistakes = Session::get('mistakes');
+	} else {
+		Session::set('mistakes', 0);
+		$mistakes = 0;
+	}
 	$qid = Input::get('qid');
 	$q = Question::find($qid);
 	if (Input::get('answer') == $q->answer){
@@ -40,6 +46,8 @@ Route::post('checkanswer', function(){
 		Session::set('score', $score);
 	} else {
 		$correct = false;
+		$mistakes++;
+		Session::set('mistakes', $mistakes);
 	}
 	$payload = [ 'qid'=> $qid, 'correct' => $correct, 'answer' => $q->answer ];
 	return Response::json($payload);
