@@ -3,17 +3,27 @@
 
 <div class="container">
 	Score: {{ Session::get('score') }}
-</div>
 
-<h1>{{ $question->question }}</h1>
+
+<h4>{{ $question->question }}</h4>
+
 @foreach($options as $option)
-<input type="radio" name="question" class="question" value="{{$option}}" data-qid="{{$question->id}}"> {{ $option}} <br />
+
+		<div class="radio">
+          <label>
+          	<input type="radio" name="question" class="question" value="{{$option}}" data-qid="{{$question->id}}">{{$option}}
+			<br><br>
+          </label>
+        </div>
 @endforeach
 
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+	<div class="info hide">
+		
+	</div>	
+</div>
 
-<div class="alert alert-info hide">
-	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-	<strong>Title!</strong> Alert body ...
+
 </div>
 @stop
 
@@ -26,12 +36,12 @@
 			var _qid = $(this).data('qid');
 			console.log($(this).data('qid'));
 			$.post( "checkanswer", { qid: _qid, answer: _answer} ).done( function(data){
-				$('.alert').removeClass('hide');
+				$('.info').removeClass('hide');
 				if ( data.correct ){
-					$('.alert').html('Correct!' + '<br><input class="btn btn-primary" id="next" type="button" value="Next">');
+					$('.info').html('<input class="btn btn-primary" id="next" type="button" value="Correct! Next question">');
 
 				} else {
-					$('.alert').html('Incorrect answer is ' + data.answer);
+					$('.info').html('<p>Incorrect answer is ' + data.answer + '</p>');
 				}
 
 				$('#next').click(function(){

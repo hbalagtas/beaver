@@ -47,9 +47,9 @@ Route::post('checkanswer', function(){
 
 Route::get('importer', function(){
 
-	#$html = new Htmldom('http://www.apnatoronto.com/canadian-citizenship-test2/');
-	$data = file_get_contents('/tmp/index.html');
-	$html = new Htmldom($data);
+	$html = new Htmldom('http://www.apnatoronto.com/canadian-citizenship-test2/');
+	#$data = file_get_contents('/tmp/index.html');
+	#$html = new Htmldom($data);
 	
 
 	for ( $x=1; $x<=25; $x++){
@@ -75,9 +75,10 @@ Route::get('importer', function(){
 				foreach($options as $option){
 					if ( $id == $answer ) {
 						$answer = $option->plaintext;
+					} else {
+						$q_options[] = $option->plaintext;	
 					}
 					#echo "$id " .$option->plaintext . "<br>";
-					$q_options[] = $option->plaintext;
 				}
 			}
 		}		
