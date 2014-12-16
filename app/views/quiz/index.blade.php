@@ -1,12 +1,43 @@
 @extends('layouts.default')
 @section('page_title', 'Quiz')
-@section('content')
 
+@section('head')
+<style>
+	.passed {
+		color: green;
+	}
+	.failed {
+		color: red;
+	}
+</style>
+@stop
+
+@section('content')
 <div class="container">
 	Correct Answers: {{ Session::get('score') }} Incorrect Answers: {{ Session::get('mistakes') }}
 
+	<?php 
+	$pct = 0;
+	$mistakes = (int)Session::get('mistakes');
+	$score = (int)Session::get('score');
+	
+	if ( $mistakes != 0 ){
+		$pct = round( ($score / ($mistakes + $score)) * 100, 0);
+	} else {
+		$pct = 100;		
+	}
+	
+	if ($pct >= 75) {
+		$status = '<p class="passed">'. $pct .'% PASSED</p>';
+	} else {
+		$status = '<p class="failed">'. $pct . '% FAILED</p>';
+	}
+	?>
 
-<h4>{{ $question->question }}</h4>
+	{{$status}}
+
+
+<h4>#{{Session::get('total_questions')}} {{ $question->question }}</h4>
 
 @foreach($options as $option)
 
@@ -42,7 +73,7 @@
 					$('.info').html('<input class="btn btn-primary" id="next" type="button" value="Correct! Next question">');
 
 				} else {
-					$('.info').html('<p>Incorrect! ' + data.answer + '</p> <input class="btn btn-primary" id="next" type="button" value="Next question">');
+					$('.info').html('<p>Incorrect! ' + data.answer + '</p> <input class="btn btn-danger" id="next" type="button" value="Next question">');
 					$('.question').attr('disabled', true);
 				}
 

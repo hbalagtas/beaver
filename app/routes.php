@@ -13,33 +13,68 @@
 
 Route::get('/', 'PagesController@home');
 //
+Route::get('flush', function(){
+	Session::flush();
+});
+
 Route::get('quiz', function(){
-	$question = Question::random()->take(1)->first();
+
+	if ( !Session::has('previous_questions') ){
+		Session::set('previous_questions', [0]);
+	}
+
+	Log::info(Session::get('previous_questions'));
+	#dd(Session::get('previous_questions'));
+	$question = Question::whereNotIn('id', Session::get('previous_questions') )->random()->take(1)->first();
+	Log::info($question->id);
+	
 	$options = [$question->answer, $question->option1, $question->option2, $question->option3 ];
 	shuffle($options);
 
 	if ( !Session::has('score') ){
 		Session::set('score', 0);
 	}
+	if ( !Session::has('mistakes') ){
+		Session::set('mistakes', 0);
+	}
+
+	if ( !Session::has('total_questions') ){
+		Session::set('total_questions', 1);
+	} else {
+		Session::set('total_questions', Session::get('total_questions') + 1);
+	}
+
+	if (Session::get('total_questions') > 25 ){
+		return View::make('quiz.results');
+	}
 
 	return View::make('quiz.index', compact('question', 'options'));
 });
 
 Route::post('checkanswer', function(){
+	$qid = Input::get('qid');
+	$q = Question::find($qid);
+
+	if ( Session::has('previous_questions') ){
+		$previous_questions = Session::get('previous_questions');
+		$previous_questions[] = $q->id;
+		Session::set('previous_questions', $previous_questions);
+	}
+
 	if ( Session::has('score') ){
 		$score = Session::get('score');
 	} else {
 		Session::set('score', 0);
 		$score = 0;
 	}
+
 	if ( Session::has('mistakes') ){
 		$mistakes = Session::get('mistakes');
 	} else {
 		Session::set('mistakes', 0);
 		$mistakes = 0;
 	}
-	$qid = Input::get('qid');
-	$q = Question::find($qid);
+	
 	if (Input::get('answer') == $q->answer){
 		$correct = true;
 		$score++;
@@ -49,6 +84,7 @@ Route::post('checkanswer', function(){
 		$mistakes++;
 		Session::set('mistakes', $mistakes);
 	}
+
 	$payload = [ 'qid'=> $qid, 'correct' => $correct, 'answer' => $q->answer ];
 	return Response::json($payload);
 });
