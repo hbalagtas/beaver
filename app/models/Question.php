@@ -1,7 +1,7 @@
 <?php
 
 class Question extends \Eloquent {
-	protected $fillable = ['question', 'answer', 'option1', 'option2', 'option3'];
+	protected $fillable = ['question', 'answer', 'option1', 'option2', 'option3', 'counter'];
 
 	public function scopeRandom($query)
 	{

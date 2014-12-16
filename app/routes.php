@@ -23,10 +23,11 @@ Route::get('quiz', function(){
 		Session::set('previous_questions', [0]);
 	}
 
-	Log::info(Session::get('previous_questions'));
-	#dd(Session::get('previous_questions'));
-	$question = Question::whereNotIn('id', Session::get('previous_questions') )->random()->take(1)->first();
-	Log::info($question->id);
+	$question = Question::whereNotIn('id', Session::get('previous_questions') )->orderBy('counter', 'ASC')->random()->take(1)->first();
+	Log::info('QID:'.$question->id);
+	Log::info('Q ctr:'.$question->counter);
+	$question->counter = $question->counter + 1;
+	$question->save();
 	
 	$options = [$question->answer, $question->option1, $question->option2, $question->option3 ];
 	shuffle($options);

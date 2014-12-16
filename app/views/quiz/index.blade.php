@@ -43,7 +43,7 @@
 
 		<div class="radio">
           <label>
-          	<input type="radio" name="question" class="question" value="{{$option}}" data-qid="{{$question->id}}">{{$option}}
+          	<input type="radio" name="question" class="question" value="{{e($option)}}" data-qid="{{$question->id}}">{{$option}}
 			<br><br>
           </label>
         </div>
