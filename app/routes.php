@@ -18,14 +18,26 @@ Route::get('quiz', function(){
 	$options = [$question->answer, $question->option1, $question->option2, $question->option3 ];
 	shuffle($options);
 
+	if ( !Session::has('score') ){
+		Session::set('score', 0);
+	}
+
 	return View::make('quiz.index', compact('question', 'options'));
 });
 
 Route::post('checkanswer', function(){
+	if ( Session::has('score') ){
+		$score = Session::get('score');
+	} else {
+		Session::set('score', 0);
+		$score = 0;
+	}
 	$qid = Input::get('qid');
 	$q = Question::find($qid);
 	if (Input::get('answer') == $q->answer){
 		$correct = true;
+		$score++;
+		Session::set('score', $score);
 	} else {
 		$correct = false;
 	}
@@ -44,56 +56,44 @@ Route::get('importer', function(){
 		$qid = '#mtq_question_text-'.$x.'-1';
 		
 		foreach ( $html->find($qid) as $question ){
-			echo $question->plaintext;
+			$question_text = $question->plaintext;
+			#echo $question->plaintext;
 			$sibling = $question->next_sibling();
 
-			$answers = $html->find('.mtq_correct_marker');
+			$answers = $sibling->find('.mtq_correct_marker');
 			foreach($answers as $answer){
-				echo $answer->id;
+				$answer = str_replace('marker', 'answer_text', '#'.$answer->id);
+				#echo $answer;
 			}
 
 			// find the options
+			$q_options = array();
 			for($y=1; $y<=4; $y++){
 				$id = '#mtq_answer_text-'.$x.'-'.$y.'-1';
 				$options = $html->find($id);
+				
 				foreach($options as $option){
-					echo "$id " .$option->plaintext . "<br>";
+					if ( $id == $answer ) {
+						$answer = $option->plaintext;
+					}
+					#echo "$id " .$option->plaintext . "<br>";
+					$q_options[] = $option->plaintext;
 				}
 			}
 		}		
-		die;
-		foreach($questions as $question){
-			echo $question->plaintext;
-			$sibling = $question->next_sibling();
-			$answer = $sibling->find('.mtq_marker .mtq_correct_marker');
-		}
-		for($y=1; $y<=4; $y++){
-			$id = '#mtq_answer_text-'.$x.'-'.$y.'-1';
-			$options = $html->find($id);
-			foreach($options as $option){
-				echo "$id " .$option->plaintext . "<br>";
-			}
-		}
-
 		
-		echo $answer->id;
-		die;
-	}
-	die;
-	$questions = $html->find('.mtq_question_text');
-	foreach($questions as $question){
-		echo $question->id; //mtq_question_text-5-1
-		$qid = $question->id;
-		$answer = str_replace('question', 'answer', $qid);
-		$answer = str_replace('-1', '*', $answer);
-		echo $question->plaintext . '<br />';
-		$sibling = $question->next_sibling();
-		$options = $sibling->find('.mtq_answer_text');
-		foreach($options as $option){
-			echo $option->plaintext;
+		$q['question'] = $question_text;
+		$q['answer'] = $answer;
+		for($o=1; $o<=3; $o++){
+			$q['option'.$o] = $q_options[$o-1];
 		}
-		die();
+		
+		if ( Question::whereQuestion($question_text)->count() === 0 ){
+			echo "Creating question: " . $question_text . "<br>";
+			Question::create($q);
+		}
 	}
+	
 });
 
 // Confide routes

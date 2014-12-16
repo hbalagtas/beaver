@@ -1,7 +1,11 @@
 @extends('layouts.default')
 @section('content')
 
-<h1>{{ $question->id}} {{ $question->question }}</h1>
+<div class="container">
+	Score: {{ Session::get('score') }}
+</div>
+
+<h1>{{ $question->question }}</h1>
 @foreach($options as $option)
 <input type="radio" name="question" class="question" value="{{$option}}" data-qid="{{$question->id}}"> {{ $option}} <br />
 @endforeach
@@ -24,12 +28,18 @@
 			$.post( "checkanswer", { qid: _qid, answer: _answer} ).done( function(data){
 				$('.alert').removeClass('hide');
 				if ( data.correct ){
-					$('.alert').html('correct');
+					$('.alert').html('Correct!' + '<br><input class="btn btn-primary" id="next" type="button" value="Next">');
+
 				} else {
-					$('.alert').html('incorrect answer is ' + data.answer);
+					$('.alert').html('Incorrect answer is ' + data.answer);
 				}
+
+				$('#next').click(function(){
+					window.location.reload();
+				});
 			});
 		});	
+
 
 
 	});
